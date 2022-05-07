@@ -1,0 +1,111 @@
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
+
+#criando tensores e redimensionando para que possa ser possível a soma.
+
+tsn1 = torch.randn(10,10,3)
+tsn2 = torch.randn(15,20)
+tsn0 = tsn1.view(15,20)
+
+tsn3 = tsn0 + tsn2
+
+print(tsn3)
+
+#--------------------------------------------#
+
+#Definição da reta 
+
+a = -1
+b = 4
+c = 0.4
+
+# ax + by + c = 0
+# y = (-a*x -c)/b
+def plotline(a, b, c):
+  x = np.linspace(-2, 4, 50) #cria uma lista de x a y com i intervalos
+  y = (-a*x -c)/b
+
+  plt.axvline(0, -1, 1, color='k', linewidth=2)
+  plt.axhline(0, -2, 4, color='k', linewidth=2)
+  plt.plot(x, y)
+  plt.grid(True)
+  
+plotline(a, b, c)
+
+#--------------------------------------------#
+
+#setando a seed para teste e obtendo pontos aleatorios no espaco.
+
+np.random.seed(42)
+
+X, Y = make_classification(n_features=2, n_redundant=0, n_informative=1,
+                             n_clusters_per_class=1)
+
+plt.scatter(X[:, 0], X[:, 1], marker='o', c=Y,
+           edgecolor='k')
+
+p = X[10]
+print(Y[10])
+plt.plot(p[0], p[1], marker='^', markersize=20)
+
+#--------------------------------------------#
+
+#criando a função para plot 
+
+def plotmodel(w1, w2, b):
+  
+  plt.scatter(X[:, 0], X[:, 1], marker='o', c=Y,
+           edgecolor='k')
+  
+  xmin, xmax = plt.gca().get_xlim()
+  ymin, ymax = plt.gca().get_ylim()
+  
+  x = np.linspace(-2, 4, 50)
+  y = (-w1*x -b)/w2
+
+  plt.axvline(0, -1, 1, color='k', linewidth=1)
+  plt.axhline(0, -2, 4, color='k', linewidth=1)
+  plt.plot(x, y, label='_nolegend_')
+  
+  plt.xlim(xmin, xmax)
+  plt.ylim(ymin, ymax)
+  
+  
+#valores que definem aonde a reta vai passar, dado a formula (W1*x + W2*x + Wn*n...) + b = 0, aonde Wn são os pesos e dimensões e b o vies
+
+w1 = 75 #a
+w2 = 50  #b
+b  = 10  #c
+plotmodel(w1, w2, b)
+
+p = (-1, 1)
+print(w1 * p[0] + w2 * p[1] + b)
+
+#--------------------------------------------#
+
+def classify(ponto, w1, w2, b):
+  ret = w1 * ponto[0] + w2 * ponto[1] + b
+  
+  if ret >= 0:
+    return 1, 'yellow'
+  else:
+    return 0, 'blue'
+  
+p = (2, -1)
+classe, cor = classify(p, w1, w2, b)
+print(classe, cor)
+
+plotmodel(w1,w2, b)
+plt.plot(p[0], p[1], marker='^', color=cor, markersize=30)
+
+#--------------------------------------------#
+
+#verifica a % de precisão.
+
+acertos = 0
+for k in range(len(X)):
+  categ, _ = classify(X[k], w1, w2, b)
+  if categ == Y[k]:
+    acertos += 1
